@@ -1,6 +1,6 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { SplitText } from "gsap/all";
+import { ScrollTrigger, SplitText } from "gsap/all";
 import { useRef } from "react";
 import { useMediaQuery } from "react-responsive";
 
@@ -9,6 +9,9 @@ const Hero = () => {
   const isMobile = useMediaQuery({ maxWidth: 767 });
 
   useGSAP(() => {
+    if (window.history.scrollRestoration) {
+      window.history.scrollRestoration = "manual";
+    }
     const heroSplit = new SplitText(".title", { type: "chars, words" });
     const paragraphSplit = new SplitText(".subtitle", { type: "lines" });
 
@@ -43,15 +46,16 @@ const Hero = () => {
       .to(".left-leaf", { y: -200 }, 0);
 
     const startValue = isMobile ? "top 50%" : "center 60%";
-    const endValue = isMobile ? "120% top" : "bottom top";
 
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: "video",
+        trigger: "video", // Patokan mulainya animasi (saat video masuk layar)
+        endTrigger: "#cocktails", // <--- INI KUNCINYA: Patokan selesainya animasi
         start: startValue,
-        end: endValue,
+        end: "bottom bottom", // Animasi selesai saat bagian BAWAH #cocktails menyentuh bagian BAWAH layar
         scrub: true,
         pin: true,
+        pinSpacing: false,
       },
     });
 
@@ -59,6 +63,7 @@ const Hero = () => {
       tl.to(videoRef.current, {
         currentTime: videoRef.current.duration,
       });
+      ScrollTrigger.refresh();
     };
   }, []);
 
